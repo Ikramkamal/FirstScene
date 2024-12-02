@@ -90,6 +90,10 @@ bool init()
 	if (!program.link()) return false;
 	if (!program.use(true)) return false;
 
+	// glut additional setup
+	glutSetVertexAttribCoord3(program.getAttribLocation("aVertex"));
+	glutSetVertexAttribNormal(program.getAttribLocation("aNormal"));
+
    // prepare vertex data
    glGenBuffers(1, &vertexBuffer);
    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -141,16 +145,9 @@ bool init()
 
 void renderScene(mat4& matrixView, float time, float deltaTime)
 {
+	
+	
 	mat4 m;
-
-	// setup materials - grey
-	program.sendUniform("material", vec3(0.6f, 0.6f, 0.6f));
-
-	
-	
-	
-	
-	
 	
 	
 	// table
@@ -220,6 +217,59 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 
 
 
+
+
+	m = matrixView;
+	m = scale(m, vec3(0.1f, 0.1f, 0.1f));
+	program.sendUniform("matrixModelView", m);
+
+
+
+
+	// setup materials - grey
+	program.sendUniform("material", vec3(0.6f, 0.6f, 0.6f));
+
+
+	// Get Attribute Locations
+
+	GLuint attribVertex = program.getAttribLocation("aVertex");
+
+	GLuint attribNormal = program.getAttribLocation("aNormal");
+
+
+	// Enable vertex attribute arrays
+
+	glEnableVertexAttribArray(attribVertex);
+
+	glEnableVertexAttribArray(attribNormal);
+
+
+	// Bind (activate) the vertex buffer and set the pointer to it
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+	glVertexAttribPointer(attribVertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+
+	// Bind (activate) the normal buffer and set the pointer to it
+
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+
+	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
+
+	// Draw triangles – using index buffer
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
+
+
+	// Disable arrays
+
+	glDisableVertexAttribArray(attribVertex);
+
+	glDisableVertexAttribArray(attribNormal);
 
 
 
