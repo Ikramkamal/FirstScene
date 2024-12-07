@@ -119,7 +119,6 @@ bool init()
 	if (!heart.load("models\\heart.obj")) return false;
 	if (!lamp.load("models\\lamp.obj")) return false;
 
-	
 
 
 	// Initialise the View Matrix (initial position of the camera)
@@ -153,14 +152,16 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	
 	mat4 m;
 	
-	
+	// setup materials table 
+	program.sendUniform("material", vec3(0.878f, 0.686f, 0.627f));
 	// table
 	m = matrixView;
-	//m = translate(m, vec3(-3.0f, -1.0f, 0.0f));
 	m = rotate(m, radians(245.0f), vec3(0.0f, 1.0f, 0.0f));
 	m = scale(m, vec3(0.005f, 0.005f, 0.005f));
 	table.render(1, m);
 
+	// setup materials chairs 
+	program.sendUniform("material", vec3(0.878f, 0.686f, 0.627f));
 	//chairs
 	m = matrixView;
 	m = translate(m, vec3(0.0f, 0.0f, 0.0f));
@@ -186,9 +187,8 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	m = scale(m, vec3(0.005f, 0.005f, 0.005f));
 	table.render(0, m);
 
-	// setup materials - blue
-	program.sendUniform("material", vec3(0, 0, 1));
-
+	// setup materials vase 
+	program.sendUniform("material", vec3(1.0f, 0.302f, 0.427f));
 	//vase
 	m = matrixView;
 	m = translate(m, vec3(-0.3f, 3.8f, 0.0f));
@@ -196,6 +196,10 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	m = scale(m, vec3(0.13f, 0.13f, 0.13f));
 	vase.render(m);
 
+	
+	
+	// setup materials heart 
+	program.sendUniform("material", vec3(0.969f, 0.839f, 0.878f));
 	//heart
 	m = matrixView;
 	m = translate(m, vec3(-1.5f, 4.5f, 1.0f));
@@ -204,7 +208,8 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	heart.render(m);
 
 
-
+	// setup materials lamps 
+	program.sendUniform("material", vec3(0.980f, 0.980f, 0.980f));
 	//lamps
 	m = matrixView;
 	m = translate(m, vec3(-2.8f, 3.8f, 1.5f));
@@ -218,13 +223,10 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	m = scale(m, vec3(0.02f, 0.02f, 0.02f));
 	lamp.render(m);
 
-	// setup materials - blue
-	program.sendUniform("material", vec3(0.6f, 0.6f, 0.6f));
 
-	// setup materials - blue
+
+	// setup materials teapot 
 	program.sendUniform("material", vec3(1, 0, 0));
-
-	
 	// teapot
 	m = matrixView;
 	m = translate(m, vec3(0.5f, 4.2f, -1.0f));
@@ -235,7 +237,8 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	program.sendUniform("matrixModelView", m);
 	glutSolidTeapot(2.0);
 
-
+	// setup materials pyramid 
+	program.sendUniform("material", vec3(0.788f, 0.094f, 0.290f));
     //Pyramid 
 	m = matrixView;
 	m = translate(m, vec3(-1.5f, 4.5f, 1.0f));
@@ -244,68 +247,31 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	m = scale(m, vec3(0.1f, 0.1f, 0.1f));
 	program.sendUniform("matrixModelView", m);
 
-
-
-	
-
-	// setup materials - grey
-	program.sendUniform("material", vec3(0.6f, 0.6f, 0.6f));
-
-
 	// Get Attribute Locations
-
 	GLuint attribVertex = program.getAttribLocation("aVertex");
-
 	GLuint attribNormal = program.getAttribLocation("aNormal");
 
-
 	// Enable vertex attribute arrays
-
 	glEnableVertexAttribArray(attribVertex);
-
 	glEnableVertexAttribArray(attribNormal);
 
-
 	// Bind (activate) the vertex buffer and set the pointer to it
-
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
 	glVertexAttribPointer(attribVertex, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-
 	// Bind (activate) the normal buffer and set the pointer to it
-
 	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
-
 	glVertexAttribPointer(attribNormal, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-
 	// Draw triangles – using index buffer
-
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
 	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
 
-
 	// Disable arrays
-
 	glDisableVertexAttribArray(attribVertex);
-
 	glDisableVertexAttribArray(attribNormal);
 
-
-
-
-
-
-
-
-
 }
-
-
-
-
 
 void onRender()
 {
@@ -332,11 +298,6 @@ void onRender()
 	if (pyramidRotationAngle > 360.0f) {
 		pyramidRotationAngle -= 360.0f;  
 	}
-
-
-
-
-
 
 	// render the scene objects
 	renderScene(matrixView, time, deltaTime);
