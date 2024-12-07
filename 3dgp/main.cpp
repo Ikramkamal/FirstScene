@@ -23,6 +23,8 @@ C3dglProgram program;
 // 3D models
 C3dglModel table;
 C3dglModel vase;
+C3dglModel heart;
+C3dglModel lamp;
 
 float pyramidRotationAngle = 0.0f;
 
@@ -114,6 +116,8 @@ bool init()
 	// load your 3D models here!
 	if (!table.load("models\\table.obj")) return false;
 	if (!vase.load("models\\vase.obj")) return false;
+	if (!heart.load("models\\heart.obj")) return false;
+	if (!lamp.load("models\\lamp.obj")) return false;
 
 	
 
@@ -187,10 +191,32 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 
 	//vase
 	m = matrixView;
-	m = translate(m, vec3(0.0f, 3.8f, 0.0f));
+	m = translate(m, vec3(-0.3f, 3.8f, 0.0f));
 	m = rotate(m, radians(25.0f), vec3(0.0f, 1.0f, 0.0f));
-	m = scale(m, vec3(0.1f, 0.1f, 0.1f));
+	m = scale(m, vec3(0.13f, 0.13f, 0.13f));
 	vase.render(m);
+
+	//heart
+	m = matrixView;
+	m = translate(m, vec3(-1.5f, 4.5f, 1.0f));
+	m = rotate(m, radians(pyramidRotationAngle), vec3(0.0f, 1.0f, 0.0f));
+	m = scale(m, vec3(0.05f, 0.05f, 0.05f));
+	heart.render(m);
+
+
+
+	//lamps
+	m = matrixView;
+	m = translate(m, vec3(-2.8f, 3.8f, 1.5f));
+	m = rotate(m, radians(30.0f), vec3(0.0f, 1.0f, 0.0f));
+	m = scale(m, vec3(0.02f, 0.02f, 0.02f));
+	lamp.render(m);
+
+	m = matrixView;
+	m = translate(m, vec3(2.0f, 3.8f, -1.5f));
+	m = rotate(m, radians(60.0f), vec3(0.0f, 1.0f, 0.0f));
+	m = scale(m, vec3(0.02f, 0.02f, 0.02f));
+	lamp.render(m);
 
 	// setup materials - blue
 	program.sendUniform("material", vec3(0.6f, 0.6f, 0.6f));
@@ -201,7 +227,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	
 	// teapot
 	m = matrixView;
-	m = translate(m, vec3(1.0f, 4.2f, 1.0f));
+	m = translate(m, vec3(0.5f, 4.2f, -1.0f));
 	m = rotate(m, radians(25.0f), vec3(0.0f, 1.0f, 0.0f));
 	m = scale(m, vec3(0.3f, 0.3f, 0.3f));
 
@@ -220,6 +246,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 
 
 
+	
 
 	// setup materials - grey
 	program.sendUniform("material", vec3(0.6f, 0.6f, 0.6f));
