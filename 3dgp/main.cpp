@@ -24,7 +24,7 @@ C3dglProgram program;
 C3dglModel table;
 C3dglModel vase;
 
-
+float pyramidRotationAngle = 0.0f;
 
 
 // The View Matrix
@@ -145,7 +145,7 @@ bool init()
 
 void renderScene(mat4& matrixView, float time, float deltaTime)
 {
-	
+
 	
 	mat4 m;
 	
@@ -201,7 +201,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	
 	// teapot
 	m = matrixView;
-	m = translate(m, vec3(-1.0f, 4.2f, 1.0f));
+	m = translate(m, vec3(1.0f, 4.2f, 1.0f));
 	m = rotate(m, radians(25.0f), vec3(0.0f, 1.0f, 0.0f));
 	m = scale(m, vec3(0.3f, 0.3f, 0.3f));
 
@@ -210,16 +210,11 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	glutSolidTeapot(2.0);
 
 
-
-
-
-
-
-
-
-
-
+    //Pyramid 
 	m = matrixView;
+	m = translate(m, vec3(-1.5f, 4.5f, 1.0f));
+	m = rotate(m, radians(pyramidRotationAngle), vec3(0.0f, 1.0f, 0.0f));
+	m = rotate(m, radians(180.0f), vec3(1.0f, 0.0f, 0.0f));  
 	m = scale(m, vec3(0.1f, 0.1f, 0.1f));
 	program.sendUniform("matrixModelView", m);
 
@@ -304,6 +299,17 @@ void onRender()
 		_vel * deltaTime),		// animate camera motion (controlled by WASD keys)
 		-pitch, vec3(1, 0, 0))	// switch the pitch on
 		* matrixView;
+
+	//rotation of pyramid
+	pyramidRotationAngle += 20.0f * deltaTime;
+	if (pyramidRotationAngle > 360.0f) {
+		pyramidRotationAngle -= 360.0f;  
+	}
+
+
+
+
+
 
 	// render the scene objects
 	renderScene(matrixView, time, deltaTime);
