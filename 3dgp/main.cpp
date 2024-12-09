@@ -29,7 +29,6 @@ C3dglModel lamp;
 float pyramidRotationAngle = 0.0f;
 
 
-// The View Matrix
 mat4 matrixView;
 
 // Camera & navigation
@@ -72,6 +71,7 @@ bool init()
 	glEnable(GL_NORMALIZE);		// normalization is needed by AssImp library models
 	glShadeModel(GL_SMOOTH);	// smooth shading mode is the default one; try GL_FLAT here!
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);	// this is the default one; try GL_LINE!
+
 
 
 	// Initialise Shaders
@@ -131,6 +131,8 @@ bool init()
 	// setup the screen background colour
 	glClearColor(0.18f, 0.25f, 0.22f, 1.0f);   // deep grey background
 
+	
+
 	cout << endl;
 	cout << "Use:" << endl;
 	cout << "  WASD or arrow key to navigate" << endl;
@@ -149,11 +151,32 @@ bool init()
 void renderScene(mat4& matrixView, float time, float deltaTime)
 {
 
-	
 	mat4 m;
+
+	program.sendUniform("lightAmbient.color", vec3(0.1, 0.1, 0.1)); //ambient light
+	program.sendUniform("materialAmbient", vec3(1.0, 1.0, 1.0));//ambient light
+
+	program.sendUniform("lightDir.direction", vec3(1.0, 0.5, 1.0));
+	program.sendUniform("lightDir.diffuse", vec3(0.5, 0.5, 0.5)); // dimmed white light	program.sendUniform("lightDir.color", vec3(1.0, 1.0, 1.0)); //ambient light
+
+
+	program.sendUniform("lightPoint.position", vec3 (-2.95, 6.24, -1.0));
+	program.sendUniform("lightPoint.diffuse", vec3(0.5, 0.5, 0.5));
+	program.sendUniform("lightPoint.specular", vec3(2.0, 2.0, 2.0));
+	program.sendUniform("materialSpecular", vec3(0.6, 0.6, 1.0));
+	program.sendUniform("shininess", 10.0);
+
+
+	//rotation of pyramid
+	pyramidRotationAngle += 20.0f * deltaTime;
+	if (pyramidRotationAngle > 360.0f) {
+		pyramidRotationAngle -= 360.0f;
+	}
 	
+
 	// setup materials table 
-	program.sendUniform("material", vec3(0.878f, 0.686f, 0.627f));
+	program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
+	//program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
 	// table
 	m = matrixView;
 	m = rotate(m, radians(245.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -161,7 +184,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	table.render(1, m);
 
 	// setup materials chairs 
-	program.sendUniform("material", vec3(0.878f, 0.686f, 0.627f));
+	program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
 	//chairs
 	m = matrixView;
 	m = translate(m, vec3(0.0f, 0.0f, 0.0f));
@@ -188,7 +211,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	table.render(0, m);
 
 	// setup materials vase 
-	program.sendUniform("material", vec3(1.0f, 0.302f, 0.427f));
+	program.sendUniform("materialDiffuse", vec3(1.0f, 0.302f, 0.427f));
 	//vase
 	m = matrixView;
 	m = translate(m, vec3(-0.3f, 3.8f, 0.0f));
@@ -199,7 +222,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	
 	
 	// setup materials heart 
-	program.sendUniform("material", vec3(0.969f, 0.839f, 0.878f));
+	program.sendUniform("materialDiffuse", vec3(0.969f, 0.839f, 0.878f));
 	//heart
 	m = matrixView;
 	m = translate(m, vec3(-1.5f, 4.5f, 1.0f));
@@ -209,7 +232,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 
 
 	// setup materials lamps 
-	program.sendUniform("material", vec3(0.980f, 0.980f, 0.980f));
+	program.sendUniform("materialDiffuse", vec3(0.980f, 0.980f, 0.980f));
 	//lamps
 	m = matrixView;
 	m = translate(m, vec3(-2.8f, 3.8f, 1.5f));
@@ -223,10 +246,10 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	m = scale(m, vec3(0.02f, 0.02f, 0.02f));
 	lamp.render(m);
 
-
+	
 
 	// setup materials teapot 
-	program.sendUniform("material", vec3(1, 0, 0));
+	program.sendUniform("materialDiffuse", vec3(1, 0, 0));
 	// teapot
 	m = matrixView;
 	m = translate(m, vec3(0.5f, 4.2f, -1.0f));
@@ -238,7 +261,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	glutSolidTeapot(2.0);
 
 	// setup materials pyramid 
-	program.sendUniform("material", vec3(0.788f, 0.094f, 0.290f));
+	program.sendUniform("materialDiffuse", vec3(0.788f, 0.094f, 0.290f));
     //Pyramid 
 	m = matrixView;
 	m = translate(m, vec3(-1.5f, 4.5f, 1.0f));
@@ -271,6 +294,15 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	glDisableVertexAttribArray(attribVertex);
 	glDisableVertexAttribArray(attribNormal);
 
+	program.sendUniform("lightAmbient.color", vec3(1.1, 1.1, 1.1));
+	//SPHERE TEST 
+	m = matrixView;
+	m = translate(m, vec3(-2.95f, 6.24f, -1.0f));
+	m = scale(m, vec3(0.5f, 0.5f, 0.5f));
+	program.sendUniform("matrixModelView", m);
+
+	glutSolidSphere(1, 32, 32);
+
 }
 
 void onRender()
@@ -292,12 +324,9 @@ void onRender()
 		_vel * deltaTime),		// animate camera motion (controlled by WASD keys)
 		-pitch, vec3(1, 0, 0))	// switch the pitch on
 		* matrixView;
-
-	//rotation of pyramid
-	pyramidRotationAngle += 20.0f * deltaTime;
-	if (pyramidRotationAngle > 360.0f) {
-		pyramidRotationAngle -= 360.0f;  
-	}
+	
+	// setup View Matrix
+	program.sendUniform("matrixView", matrixView);
 
 	// render the scene objects
 	renderScene(matrixView, time, deltaTime);
@@ -463,6 +492,8 @@ int main(int argc, char **argv)
 		C3dglLogger::log("Application failed to initialise\r\n");
 		return 0;
 	}
+
+
 
 	// enter GLUT event processing cycle
 	glutMainLoop();
