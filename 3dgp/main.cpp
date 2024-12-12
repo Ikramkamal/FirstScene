@@ -14,7 +14,8 @@ using namespace std;
 using namespace _3dgl;
 using namespace glm;
 
-
+bool light1On = false; 
+bool light2On = false;
 
 // GLSL Program
 C3dglProgram program;
@@ -25,6 +26,11 @@ C3dglModel table;
 C3dglModel vase;
 C3dglModel heart;
 C3dglModel lamp;
+
+//texture
+C3dglBitmap bm;
+
+GLuint idTexFabric;
 
 float pyramidRotationAngle = 0.0f;
 
@@ -120,7 +126,6 @@ bool init()
 	if (!lamp.load("models\\lamp.obj")) return false;
 
 
-
 	// Initialise the View Matrix (initial position of the camera)
 	matrixView = rotate(mat4(1), radians(12.f), vec3(1, 0, 0));
 	matrixView *= lookAt(
@@ -131,7 +136,23 @@ bool init()
 	// setup the screen background colour
 	glClearColor(0.18f, 0.25f, 0.22f, 1.0f);   // deep grey background
 
+
 	
+
+	//load texture 
+	bm.load("models/fabric1.png", GL_RGBA);
+	if (!bm.getBits()) return false;
+
+
+	//initialize texture
+	glActiveTexture(GL_TEXTURE0);
+	glGenTextures(1, &idTexFabric);
+	glBindTexture(GL_TEXTURE_2D, idTexFabric);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bm.getWidth(), bm.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bm.getBits());
+	
+	// Send the texture info to the shaders
+	program.sendUniform("texture0", 0);
 
 	cout << endl;
 	cout << "Use:" << endl;
@@ -139,13 +160,11 @@ bool init()
 	cout << "  QE or PgUp/Dn to move the camera up and down" << endl;
 	cout << "  Shift to speed up your movement" << endl;
 	cout << "  Drag the mouse to look around" << endl;
+	cout << "  Press 1 or 2 to turn on the light" << endl;
 	cout << endl;
 
 	return true;
 }
-
-
-
 
 
 void renderScene(mat4& matrixView, float time, float deltaTime)
@@ -159,12 +178,27 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	program.sendUniform("lightDir.direction", vec3(1.0, 0.5, 1.0));
 	program.sendUniform("lightDir.diffuse", vec3(0.5, 0.5, 0.5)); // dimmed white light	program.sendUniform("lightDir.color", vec3(1.0, 1.0, 1.0)); //ambient light
 
-
-	program.sendUniform("lightPoint.position", vec3 (-2.95, 6.24, -1.0));
-	program.sendUniform("lightPoint.diffuse", vec3(0.5, 0.5, 0.5));
-	program.sendUniform("lightPoint.specular", vec3(2.0, 2.0, 2.0));
+	if (light1On) 
+	{
+		program.sendUniform("lightPoint1.position", vec3(1.55f, 5.0f, -0.5f));
+		program.sendUniform("lightPoint1.diffuse", vec3(0.8, 0.8, 0.5));
+		program.sendUniform("lightPoint1.specular", vec3(0.1, 0.1, 0.1));
+	
+		
+	}
+	
+	if (light2On)
+	{
+		program.sendUniform("lightPoint2.position", vec3(-3.84f, 4.7f, 1.0f));
+		program.sendUniform("lightPoint2.diffuse", vec3(0.8, 0.8, 0.5));
+		program.sendUniform("lightPoint2.specular", vec3(0.1, 0.1, 0.1));
+		
+	}
+	
+	
 	program.sendUniform("materialSpecular", vec3(0.6, 0.6, 1.0));
 	program.sendUniform("shininess", 10.0);
+
 
 
 	//rotation of pyramid
@@ -176,7 +210,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 
 	// setup materials table 
 	program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
-	//program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
+	
 	// table
 	m = matrixView;
 	m = rotate(m, radians(245.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -184,8 +218,10 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	table.render(1, m);
 
 	// setup materials chairs 
-	program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
+	program.sendUniform("materialDiffuse", vec3(0.561f, 0.333f, 0.145f));
+	
 	//chairs
+	glBindTexture(GL_TEXTURE_2D, idTexFabric);
 	m = matrixView;
 	m = translate(m, vec3(0.0f, 0.0f, 0.0f));
 	m = rotate(m, radians(245.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -294,13 +330,20 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	glDisableVertexAttribArray(attribVertex);
 	glDisableVertexAttribArray(attribNormal);
 
-	program.sendUniform("lightAmbient.color", vec3(1.1, 1.1, 1.1));
+	
 	//SPHERE TEST 
+	program.sendUniform("lightAmbient.color", vec3(1.1, 1.1, 1.1));
 	m = matrixView;
-	m = translate(m, vec3(-2.95f, 6.24f, -1.0f));
-	m = scale(m, vec3(0.5f, 0.5f, 0.5f));
+	m = translate(m, vec3(1.55f, 5.0f, -0.5f));
+	m = scale(m, vec3(0.12f, 0.12f, 0.12f));
 	program.sendUniform("matrixModelView", m);
+    glutSolidSphere(1, 32, 32);
 
+	
+	m = matrixView;
+	m = translate(m, vec3(-3.84f, 4.7f, 1.0f));
+	m = scale(m, vec3(0.12f, 0.12f, 0.12f));
+	program.sendUniform("matrixModelView", m);
 	glutSolidSphere(1, 32, 32);
 
 }
@@ -362,6 +405,16 @@ void onKeyDown(unsigned char key, int x, int y)
 	case 'd': _acc.x = -accel; break;
 	case 'e': _acc.y = accel; break;
 	case 'q': _acc.y = -accel; break;
+
+	//handle lights
+	case'1': light1On = true; break;
+	case'2': light2On = true; break;
+
+
+
+
+
+
 	}
 }
 
