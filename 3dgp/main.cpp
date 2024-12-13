@@ -29,8 +29,7 @@ C3dglModel lamp;
 
 //texture
 C3dglBitmap bm;
-
-GLuint idTexFabric;
+GLuint idTexWood;
 
 float pyramidRotationAngle = 0.0f;
 
@@ -133,26 +132,24 @@ bool init()
 		vec3(0.0, 5.0, 0.0),
 		vec3(0.0, 1.0, 0.0));
 
-	// setup the screen background colour
-	glClearColor(0.18f, 0.25f, 0.22f, 1.0f);   // deep grey background
 
 
 	
 
 	//load texture 
-	bm.load("models/fabric1.png", GL_RGBA);
+	bm.load("models/sand.png", GL_RGBA);
 	if (!bm.getBits()) return false;
 
-
-	//initialize texture
 	glActiveTexture(GL_TEXTURE0);
-	glGenTextures(1, &idTexFabric);
-	glBindTexture(GL_TEXTURE_2D, idTexFabric);
+	glGenTextures(1, &idTexWood);
+	glBindTexture(GL_TEXTURE_2D, idTexWood);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bm.getWidth(), bm.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, bm.getBits());
-	
+
+
 	// Send the texture info to the shaders
 	program.sendUniform("texture0", 0);
+
 
 	cout << endl;
 	cout << "Use:" << endl;
@@ -176,7 +173,8 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	program.sendUniform("materialAmbient", vec3(1.0, 1.0, 1.0));//ambient light
 
 	program.sendUniform("lightDir.direction", vec3(1.0, 0.5, 1.0));
-	program.sendUniform("lightDir.diffuse", vec3(0.5, 0.5, 0.5)); // dimmed white light	program.sendUniform("lightDir.color", vec3(1.0, 1.0, 1.0)); //ambient light
+	program.sendUniform("lightDir.diffuse", vec3(0.5, 0.5, 0.5)); // dimmed white light	
+	program.sendUniform("lightDir.color", vec3(1.0, 1.0, 1.0)); //ambient light
 
 	if (light1On) 
 	{
@@ -210,7 +208,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 
 	// setup materials table 
 	program.sendUniform("materialDiffuse", vec3(0.878f, 0.686f, 0.627f));
-	
+
 	// table
 	m = matrixView;
 	m = rotate(m, radians(245.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -221,7 +219,6 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	program.sendUniform("materialDiffuse", vec3(0.561f, 0.333f, 0.145f));
 	
 	//chairs
-	glBindTexture(GL_TEXTURE_2D, idTexFabric);
 	m = matrixView;
 	m = translate(m, vec3(0.0f, 0.0f, 0.0f));
 	m = rotate(m, radians(245.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -249,6 +246,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	// setup materials vase 
 	program.sendUniform("materialDiffuse", vec3(1.0f, 0.302f, 0.427f));
 	//vase
+
 	m = matrixView;
 	m = translate(m, vec3(-0.3f, 3.8f, 0.0f));
 	m = rotate(m, radians(25.0f), vec3(0.0f, 1.0f, 0.0f));
@@ -333,6 +331,7 @@ void renderScene(mat4& matrixView, float time, float deltaTime)
 	
 	//SPHERE TEST 
 	program.sendUniform("lightAmbient.color", vec3(1.1, 1.1, 1.1));
+	program.sendUniform("materialDiffuse", vec3(1, 1, 1));
 	m = matrixView;
 	m = translate(m, vec3(1.55f, 5.0f, -0.5f));
 	m = scale(m, vec3(0.12f, 0.12f, 0.12f));

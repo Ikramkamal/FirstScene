@@ -3,8 +3,7 @@
 #version 330
 
 
-	uniform sampler2D texture0;
-	in vec2 texCoord0;
+	
 
 	in vec4 color;
 	out vec4 outColor;
@@ -15,6 +14,10 @@
 	uniform vec3 materialDiffuse;
 	uniform vec3 materialSpecular;
 	uniform float shininess;
+
+// texture
+	uniform sampler2D texture0;
+	in vec2 texCoord0;
 
 
 // View Matrix
@@ -60,6 +63,6 @@ void main(void)
   outColor = color;
   outColor += PointLight(lightPoint1);
   outColor += PointLight(lightPoint2);
-  outColor *= texture(texture0, texCoord0);
+  //outColor *= texture(texture0, texCoord0);
  
 }
